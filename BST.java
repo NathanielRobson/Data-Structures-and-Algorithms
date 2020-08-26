@@ -1,131 +1,128 @@
-public class BST // non-generic version
-{ private BTNode<Integer> root;
+package Exercise2;
 
-  public BST()
-  { root = null;
-  }
+import java.util.NoSuchElementException;
 
-  public boolean find(Integer i)
-  { BTNode<Integer> n = root;
-    boolean found = false;
+public class BST {
+    private BTNode<Integer> root;
+    private boolean located;
+    private int mycount;
+    private int index;
+    private int n;
 
-    while (n!=null && !found)
-    { int comp = i.compareTo(n.data);
-      if (comp==0)
-        found = true;
-      else if (comp<0)
-        n = n.left;
-      else
-        n = n.right;
-	}
-
-    return found;
-  }
-
-  public boolean insert(Integer i)
-  { BTNode<Integer> parent = root, child = root;
-    boolean goneLeft = false;
-
-    while (child!=null && i.compareTo(child.data)!=0)
-    { parent = child;
-      if (i.compareTo(child.data)<0)
-	  { child = child.left;
-	    goneLeft = true;
-	  }
-	  else
-	  { child = child.right;
-	    goneLeft = false;
-      }
-	}
-
-    if (child!=null)
-      return false;  // number already present
-    else
-    { BTNode<Integer> leaf = new BTNode<Integer>(i);
-      if (parent==null) // tree was empty
-        root = leaf;
-      else if (goneLeft)
-        parent.left = leaf;
-      else
-        parent.right = leaf;
-      return true;
+    public BST() {
+        root = null;
     }
-  }
 
-  public String toString() //same as toString method in slides for BTree class
-  { return getString(root);
-  }
+    public boolean find(Integer i) {
+        BTNode<Integer> n = root;
+        boolean found = false;
 
-  private static String getString(BTNode<Integer> n)
-  { if (n==null)
-      return("");
-    else
-    { String s1 = getString(n.left);
-      String s2 = getString(n.right);
-      return s1+" "+n.data+" "+s2;
-  	}
-  }
+        while (n != null && !found) {
+            int comp = i.compareTo(n.data);
+            if (comp == 0) {
+                found = true;
+            } else if (comp < 0) {
+                n = n.left;
+            } else {
+                n = n.right;
+            }
+        }
 
-  private static int evens(BTNode<Integer> n)
-  { int leftAns = 0;
-    if (n.left != null)
-      leftAns = evens(n.left);
-    int rightAns = 0;
-    if (n.right != null)
-      rightAns = evens(n.right);
-    int answer = leftAns + rightAns;
-    if (n.data.intValue()%2 == 0)
-      answer++;
-    return answer;
-  }
+        return found;
+    }
 
-  /* more concise version, although marginally less efficient since it makes recursive calls with null arguments
-  private static int evens(BTNode<Integer> n)
-  { int (n == null)
-      return 0;
-    int answer = evens(n.left) + evens(n.right);
-    if n.data.intValue()%2 == 0;
-      answer++;
-    return answer;
-  }*/
+    public boolean insert(Integer i) {
+        BTNode<Integer> parent = root, child = root;
+        boolean goneLeft = false;
 
-  public int numEvens()
-    { if (root == null)
-        return 0;
-      else
-        return evens(root);
-  }
+        while (child != null && i.compareTo(child.data) != 0) {
+            parent = child;
+            if (i.compareTo(child.data) < 0) {
+                child = child.left;
+                goneLeft = true;
+            } else {
+                child = child.right;
+                goneLeft = false;
+            }
+        }
 
-  // maim method to test evens
-  public static void main(String args[])
-  { BST t = new BST();
-    System.out.println("New tree: " + t.numEvens() + " evens");
-    t.insert(4);
-    t.insert(7);
-    t.insert(6);
-    System.out.println("Inserted 4,6,7: " + t.numEvens() + " evens");
-    t.insert(2);
-    t.insert(3);
-    System.out.println("Inserted 2,3: " + t.numEvens() + " evens");
-    t.insert(1);
-    t.insert(5);
-    System.out.println("Inserted 1,5: " + t.numEvens() + " evens");
-    t.insert(54);
-    t.insert(28);
-    t.insert(112);
-    t.insert(999);
-    t.insert(888);
-    System.out.println("Inserted 54,28,112,999,888: " + t.numEvens() + " evens");
-  }
+        if (child != null)
+            return false;  // number already present
+        else {
+            BTNode<Integer> leaf = new BTNode<Integer>(i);
+            if (parent == null) { // tree was empty
+                root = leaf;
+            } else if (goneLeft) {
+                parent.left = leaf;
+            } else {
+                parent.right = leaf;
+            }
+            return true;
+        }
+    }
 
+    private void RecursionFind(BTNode<Integer> node, int n) {
+        if (node.left != null) {
+            RecursionFind(node.left, n);
+        }
 
+        if (node.right != null) {
+            RecursionFind(node.right, n);
+        }
+
+        if (node.data > n) {
+            mycount++;
+        }
+    }
+
+    public int greater(int n) {
+        BTNode<Integer> root = this.root;
+        mycount = 0;
+
+        //Empty bst
+        if (root == null) {
+            return 0;
+        }
+
+        RecursionFind(root, n);
+
+        return mycount;
+    }
+
+    private void TraverseTreeOrder(BTNode<Integer> node, int pos) {
+        //If tree is not empty and element not found traverse tree until found node
+        if (node != null && !located) {
+            TraverseTreeOrder(node.left, pos);
+
+            if (index == pos) {
+                n = node.data;
+                located = true;
+            }
+
+            index++;
+            TraverseTreeOrder(node.right, pos);
+        }
+    }
+
+    public int nth(int i) {
+        index = 0;
+        located = false;
+        TraverseTreeOrder(this.root, i);
+
+        if (!located) {
+            //if nth element is not in BST throw NoSuchElementException
+            throw new NoSuchElementException("No Element In BST Found");
+        }
+        return n;
+    }
 }
 
-class BTNode<T>
-{ T data;
-  BTNode<T> left, right;
+class BTNode<T> {
+    T data;
+    BTNode<T> left, right;
 
-  BTNode(T o)
-  { data = o; left = right = null;
-  }
+    BTNode(T o) {
+        data = o;
+        left = right = null;
+    }
 }
